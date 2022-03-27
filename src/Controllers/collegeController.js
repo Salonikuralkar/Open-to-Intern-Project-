@@ -6,6 +6,7 @@ const InternModel = require("../Models/internModel");
 const createCollege = async function(req,res)
 {
   try{
+    res.setHeader('Access-Control-Allow-Origin','*')
 let college=req.body;
 
 if(Object.keys(college).length==0) return res.status(400).send({status:false, message:"Please Enter your college details"})
@@ -37,12 +38,19 @@ catch(error)
 
 const getcollegeDetails = async function (req, res) {
   try{
-
+    res.setHeader('Access-Control-Allow-Origin','*')
 let data = req.query.collegeName;
 
 if (!data) return res.status(400).send({ status: false, message: "Please Enter your college name" });
 
-req.query.collegeName = (req.query.collegeName).toLowerCase().trim();
+data = (req.query.collegeName).toLowerCase().trim();
+
+let array = (data).split("");
+    for(let i=0; i< array.length; i++){
+        if(array[i]==" "){
+            return res.status(400).send({status:false, message: "collegeName cannot have any spaces in between."})
+        }
+    }
 
 let college = await CollegeModel.findOne({ name: data, isDeleted:false }).select({
     isDeleted: 0,
@@ -58,9 +66,11 @@ let internData = await InternModel.find({ collegeId: college._id, isDeleted:fals
     mobile: 1,
     name: 1,
 });
+
+//document from db is immutable. hence college cannot be manipulated.
 /*While using spread operator to copy the object in college variable,a lot of garbage values were being printed.
-    Also I was not able to directly manipulate the college object which we got by using findOne on mongoDB documents. Therefore,
-    I used the syntax for deep copy.*/
+  Also I was not able to directly manipulate the college object which we got by using findOne on mongoDB documents. Therefore,
+  I used the syntax for deep copy.*/
 let college1 = JSON.parse(JSON.stringify(college));//deep copy syntax to copy the mongodb object in college variable.
   // let interns1 = JSON.parse(JSON.stringify(internData))
 delete college1._id;

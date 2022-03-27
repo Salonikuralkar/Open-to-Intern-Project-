@@ -7,8 +7,8 @@ const CollegeModel = require("../Models/collegeModel");
 
 const createInternDocument = async function (req, res) {
 try{
+    res.setHeader('Access-Control-Allow-Origin','*')
 let data = req.body;
-
 if (Object.keys(data).length == 0)
     return res.status(400).send({ status: false, message: "Please Enter intern details" });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,14 +34,13 @@ let duplicateEmail = await InternModel.findOne({ email });
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-data.mobile = (data.mobile).trim();
 
+data.mobile = (data.mobile).trim();
 let mobile = data.mobile;
 if (!mobile) return res.status(400).send({ status: false, message: "Please Enter Mobile Number" });
 function checkIndianNumber(b)   
 {  
 var a = /^[6-9]\d{9}$/gi;  
-  // var a=/^((\+){0,1}91(\s){0,1}(\-){0,1}(\s){0,1}){0,1}9[0-9](\s){0,1}(\-){0,1}(\s){0,1}[1-9]{1}[0-9]{7}$/gi;
     if (a.test(b))   
     {  
         return true;  
@@ -64,6 +63,13 @@ if (duplicateNumber) {
 
 let college = data.collegeName;
 if (!college) return res.status(400).send({ status: false, message: "Please Enter college Name" });
+
+let array = (college).split("");
+    for(let i=0; i< array.length; i++){
+        if(array[i]==" "){
+            return res.status(400).send({status:false, message: "collegeName cannot have any spaces in between."})
+        }
+    }
 
 data.collegeName = (data.collegeName).toLowerCase().trim();
 
